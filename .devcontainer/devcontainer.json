@@ -1,0 +1,22 @@
+{
+    "name": "SAP CAP Procurement",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "args": {
+            "VARIANT": "22"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "sapse.vscode-cds",
+                "dbaeumer.vscode-eslint",
+                "humao.rest-client",
+                "qwtel.sqlite-viewer",
+                "mechatroner.rainbow-csv"
+            ]
+        }
+    },
+    "forwardPorts": [4004],
+    "remoteUser": "node"
+}
