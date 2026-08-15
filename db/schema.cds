@@ -1,83 +1,249 @@
-namespace procurement.management; // This means ALL entities in this file belong to the namespace procurement.management.
+namespace procurement.management;
 
-// The CSV filename MUST match the namespace + entity name exactly:
+// -------------------------
+// Suppliers
+// -------------------------
 
 entity Suppliers {
     key ID : Integer;
-    product: String;
+
+    product : String;
     name : String;
     description : String;
-    notes: String;
+    notes : String;
     location : String;
-    contactPerson: String;
-    Phone: String;
-    bankName: String;
-    iban: Integer;
-    swift: String;
-    bankAccount: Integer;
+    contactPerson : String;
+    phone : String;
+
+    bankName : String;
+    iban : String;
+    swift : String;
+    bankAccount : String;
+
     supplierCategory : String;
     industry : String;
-    website: String;
-    country: String;
-    riskScore: String;
-    currency: String;
-    incoterms: String;
-    status: String;
-    auditStatus: String;
-    lastAuditDate: Date;
-    nextAuditDate: Date;
+    website : String;
+    country : String;
+    riskScore : String;
+    currency : String;
+    incoterms : String;
+    status : String;
+
+    auditStatus : String;
+    lastAuditDate : Date;
+    nextAuditDate : Date;
+
+    contract : Association to many Contracts
+        on contract.supplier = $self;
 }
+
+
+// -------------------------
+// Orders
+// -------------------------
 
 entity Orders {
-    key ID: Integer;
-    orderName: String;
-    orderDate: Date;
-    orderDeliveryDate: Date;
-    orderStatus: String;
-    paymentStatus: String;
-    totalAmount: String;
+    key ID : Integer;
+
+    orderName : String;
+    orderDate : Date;
+    orderDeliveryDate : Date;
+    orderStatus : String;
+    paymentStatus : String;
+    totalAmount : String;
 
     supplier : Association to Suppliers;
-    requester: Association to many Requesters;
-    costcenter: Association to CostCenters;
-    approval: Association to many Approvals;
+    costcenter : Association to CostCenters;
+    contract : Association to Contracts;
+
+    approvals : Association to many Approvals
+        on approvals.order = $self;
+
+    payment : Association to many Payments
+        on payment.order = $self;
 }
 
-entity Requesters {
-    key ID: Integer;
-    name: String;
-    email: String;
-    phone: String;
-    department: String;
-    role: String;
-    employeeNumber: String;
-    manager: String;
-    location: String;
 
-}
+// -------------------------
+// Cost Centers
+// -------------------------
 
 entity CostCenters {
-    key ID: Integer;
-    name: String;
-    description: String;
-    budget: Integer;
-    remainingBudget: Integer;
-    totalSpent: Integer;
-    validFrom: Date;
-    expiresAt: Date;
-    active: Boolean;
+    key ID : Integer;
 
+    name : String;
+    description : String;
+    budget : Integer;
+    validFrom : Date;
+    expiresAt : Date;
+    active : Boolean;
+
+    responsibleUser : Association to Users;
 }
 
-entity Approvals {
-    key ID: Integer;
-    approvalType: String;
-    approvalLevel: String;
-    status: String;
-    approver: String;
-    approvedAt: Date;
-    rejectedAt: String;
-    comment: String;
-    approvalOrder: Integer;
 
+// -------------------------
+// Approvals
+// -------------------------
+
+entity Approvals {
+    key ID : Integer;
+
+    approvalType : String;
+    approvalLevel : String;
+    status : String;
+    approvedAt : Date;
+    rejectedAt : Date;
+    comment : String;
+    approvalOrder : Integer;
+
+    approver : Association to Users;
+
+    order : Association to Orders;
+    orderRequest : Association to OrderRequests;
+    workflow : Association to ApprovalWorkflows;
+}
+
+
+// -------------------------
+// Order Requests
+// -------------------------
+
+entity OrderRequests {
+    key ID : Integer;
+
+    name : String;
+    description : String;
+    status : String;
+    comment : String;
+
+    requester : Association to Users;
+    order : Association to Orders;
+    costcenter : Association to CostCenters;
+    supplier : Association to Suppliers;
+
+    approvals : Association to many Approvals
+        on approvals.orderRequest = $self;
+}
+
+
+// -------------------------
+// Users
+// -------------------------
+
+entity Users {
+    key ID : Integer;
+
+    name : String;
+    role : String;
+    email : String;
+    phone : String;
+    employeeNumber : String;
+    location : String;
+
+    department : Association to Departments;
+}
+
+
+// -------------------------
+// Approval Workflows
+// -------------------------
+
+entity ApprovalWorkflows {
+    key ID : Integer;
+
+    name : String;
+    description : String;
+
+    approval : Association to many Approvals
+        on approval.workflow = $self;
+}
+
+
+// -------------------------
+// Departments
+// -------------------------
+
+entity Departments {
+    key ID : Integer;
+
+    name : String;
+    description : String;
+    organisation : String;
+    teamSize : Integer;
+    location : String;
+    businessEntity : String;
+
+    user : Association to many Users
+        on user.department = $self;
+}
+
+
+// -------------------------
+// Contracts
+// -------------------------
+
+entity Contracts {
+    key ID : Integer;
+
+    name : String;
+    description : String;
+    validFrom : Date;
+    expiresAt : Date;
+    isValid : Boolean;
+    materialGroup : String;
+    contractCategory : String;
+
+    document : LargeBinary;
+
+    responsiblePerson : Association to Users;
+    supplier : Association to Suppliers;
+}
+
+
+// -------------------------
+// Documents
+// -------------------------
+
+entity Documents {
+    key ID : Integer;
+
+    fileName : String;
+    description : String;
+    mediaType : String;
+    uploadedAt : Date;
+    uploadedBy : Association to Users;
+
+    isValid : Boolean;
+    validFrom : Date;
+    expiresAt : Date;
+
+    documentCategory : String;
+    sensitiveData : Boolean;
+    documentType : String;
+    content : LargeBinary;
+
+    order : Association to Orders;
+    orderRequest : Association to OrderRequests;
+    supplier : Association to Suppliers;
+    approval : Association to Approvals;
+}
+
+
+// -------------------------
+// Payments
+// -------------------------
+
+entity Payments {
+    key ID : Integer;
+
+    name : String;
+    description : String;
+    status : String;
+    paymentType : String;
+
+    approvedBy : Association to Users;
+    processedBy : Association to Users;
+
+    order : Association to Orders;
 }

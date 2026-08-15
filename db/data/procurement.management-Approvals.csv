@@ -1,0 +1,8 @@
+ID,approvalType,approvalLevel,status,approvedAt,rejectedAt,comment,approvalOrder,approver_ID,order_ID,orderRequest_ID,workflow_ID
+901,Financial,Level 1,approved,2026-02-10,,Ok to proceed,1,101,601,801,502
+902,Financial,Level 2,approved,2026-02-11,,Budget fits,2,102,601,801,502
+903,Financial,Level 1,approved,2026-01-15,,Cost center has funds,1,104,602,802,502
+904,Financial,Level 2,approved,2026-01-16,,Good price,2,102,602,802,502
+905,Financial,Level 1,approved,2026-03-01,,OK,1,101,603,803,501
+906,Financial,Level 1,approved,2026-03-15,,Approved for IT,1,101,604,804,502
+907,Financial,Level 2,rejected,2026-03-16,2026-03-16,Exceeds budget limit,2,103,604,804,502

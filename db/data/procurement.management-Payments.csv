@@ -1,0 +1,4 @@
+ID,name,description,status,paymentType,approvedBy_ID,processedBy_ID,order_ID
+1001,Globex Payment Feb,Invoice #INV-2341,completed,bank-transfer,101,103,601
+1002,Alpine Payment Jan,Invoice #INV-9983,completed,bank-transfer,104,103,602
+1003,Swisslog Payment Mar,Invoice #INV-4452,pending,sepa,101,103,603

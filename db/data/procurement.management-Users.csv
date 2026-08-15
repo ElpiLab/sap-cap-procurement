@@ -1,0 +1,7 @@
+ID,name,role,email,phone,employeeNumber,location,department_ID
+101,Anna Mueller,procurement-manager,anna.mueller@salinen.ch,+41 61 123 4567,E101,Pratteln,201
+102,Beat Weber,department-head,beat.weber@salinen.ch,+41 61 123 4568,E102,Pratteln,202
+103,Clara Schmid,finance-officer,clara.schmid@salinen.ch,+41 61 123 4569,E103,Pratteln,201
+104,David Fischer,procurement-specialist,david.fischer@salinen.ch,+41 61 123 4570,E104,Pratteln,201
+105,Elena Rossi,requestor,elena.rossi@salinen.ch,+41 61 123 4571,E105,Bern,203
+106,Frank Meier,supplier-manager,frank.meier@salinen.ch,+41 61 123 4572,E106,Zurich,201

@@ -1,0 +1,4 @@
+ID,name,description
+501,Small Purchase Workflow,Approval for orders under 5k CHF (Only Manager)
+502,Medium Purchase Workflow,Approval for orders under 25k CHF (Manager -> Dept Head)
+503,Large Purchase Workflow,Approval for orders over 25k CHF (Manager -> Dept Head -> Finance)

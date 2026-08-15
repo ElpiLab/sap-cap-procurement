@@ -1,0 +1,5 @@
+ID,name,description,status,comment,requester_ID,order_ID,costcenter_ID,supplier_ID
+801,Request for Servers,Need 2x Dell R760,approved,Finance approved budget,105,601,301,402
+802,Request for Salt,Winter stock,approved,OK to order,105,602,302,401
+803,Request for Transport,Move pallets to Bern,approved,- ,106,603,303,403
+804,Request for Laptops,20x Dell Latitude,approved,Urgent replacement,105,604,301,402

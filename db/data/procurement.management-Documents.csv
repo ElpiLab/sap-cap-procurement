@@ -1,0 +1,4 @@
+ID,fileName,description,mediaType,uploadedAt,isValid,validFrom,expiresAt,sensitiveData,uploadedBy_ID,order_ID,orderRequest_ID,supplier_ID,approval_ID
+1101,Server-Specs.pdf,Technical specs for servers,application/pdf,2026-02-10,true,2026-02-10,2027-02-10,false,105,601,801,402,901
+1102,Invoice-Globex.pdf,Invoice for servers,application/pdf,2026-02-20,true,2026-02-20,2026-12-31,false,106,601,,,
+1103,Salt-Q1.pdf,Quality certificate for salt,application/pdf,2026-01-15,true,2026-01-15,2027-01-15,false,105,602,802,401,903

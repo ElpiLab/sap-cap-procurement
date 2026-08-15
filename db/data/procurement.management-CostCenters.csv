@@ -1,0 +1,4 @@
+ID,name,description,budget,validFrom,expiresAt,active,responsibleUser_ID
+301,IT-Infra,IT Hardware & Licenses,150000,2026-01-01,2026-12-31,true,101
+302,Prod-Salt,Production Raw Salt,500000,2026-01-01,2026-12-31,true,102
+303,Logistics,Transport & Warehousing,200000,2026-01-01,2026-12-31,true,104

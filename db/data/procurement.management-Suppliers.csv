@@ -1,0 +1,4 @@
+ID,product,name,description,location,contactPerson,iban,status,riskScore,industry,country,currency,incoterms
+401,Salt,Alpine Minerals AG,Mining partner for raw salt,Switzerland,John Smith,CH93 0000 0000 0000 0000 0,active,Low,Mining,CH,CHF,DAP
+402,IT,Globex IT Solutions,Software & Hardware provider,Germany,Marie Curie,DE89 3704 0044 0532 0130 00,active,Medium,Technology,DE,EUR,DDP
+403,Transport,Swisslog SA,Shipping & Warehousing,Switzerland,Luca Bianchi,CH45 0000 0000 0000 0000 0,active,Low,Logistics,CH,CHF,FCA

@@ -1,0 +1,5 @@
+ID,name,description,validFrom,expiresAt,isValid,materialGroup,contractCategory,responsiblePerson_ID,supplier_ID
+701,Globex Framework 2026,General Terms for IT Purchases,2026-01-01,2026-12-31,true,IT-Hardware,Master Agreement,101,402
+702,Alpine Salt Supply,Annual Salt supply contract,2026-01-01,2026-12-31,true,Raw-Material,Supply Contract,104,401
+703,Swisslog Carriage,Logistics services,2026-01-01,2026-06-30,true,Logistics,Service Contract,106,403
+704,Dell Laptop Lease,Hardware leasing,2026-03-01,2027-02-28,true,IT-Hardware,Lease,101,402
