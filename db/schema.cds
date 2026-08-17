@@ -51,6 +51,7 @@ entity Orders {
     orderStatus : String;
     paymentStatus : String;
     totalAmount : String;
+    requester: Association to Users;
 
     supplier : Association to Suppliers;
     costcenter : Association to CostCenters;
@@ -132,7 +133,9 @@ entity OrderRequests {
 // -------------------------
 
 entity Users {
-    key ID : Integer;
+    key ID : UUID;
+
+    userId : String;
 
     name : String;
     role : String;
