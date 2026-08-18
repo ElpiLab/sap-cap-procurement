@@ -50,18 +50,25 @@ entity Orders {
     orderDeliveryDate : Date;
     orderStatus : String;
     paymentStatus : String;
-    totalAmount : String;
-    requester: Association to Users;
+    totalAmount : Decimal(15,2);
+
+    requester : Association to Users;
 
     supplier : Association to Suppliers;
     costcenter : Association to CostCenters;
     contract : Association to Contracts;
 
+    positions : Association to many OrderPositions
+        on positions.order = $self;
+
+    invoice : Association to many Invoices
+        on invoice.order = $self;
+
     approvals : Association to many Approvals
         on approvals.order = $self;
 
-    payment : Association to many Payments
-        on payment.order = $self;
+    payments : Association to many Payments
+        on payments.order = $self;
 }
 
 
@@ -231,8 +238,6 @@ entity Documents {
     supplier : Association to Suppliers;
     approval : Association to Approvals;
 }
-
-
 // -------------------------
 // Payments
 // -------------------------
@@ -249,4 +254,41 @@ entity Payments {
     processedBy : Association to Users;
 
     order : Association to Orders;
+    invoice : Association to Invoices;
 }
+// -------------------------
+// Invoices
+// -------------------------
+
+entity Invoices {
+    key ID : Integer;
+
+    name : String;
+    description : String;
+    status : String;
+    paymentType : String;
+
+    orderedBy : Association to Users;
+    approvedBy : Association to Users;
+    processedBy : Association to Users;
+
+    order : Association to Orders;
+
+    payments : Association to many Payments
+        on payments.invoice = $self;
+}
+
+entity OrderPositions {
+    key ID : Integer;
+
+    positionNumber : Integer;
+
+    description : String;
+    quantity : Decimal(15,3);
+    unit : String;
+    unitPrice : Decimal(15,2);
+    totalPrice : Decimal(15,2);
+
+    order : Association to Orders;
+}
+
