@@ -282,6 +282,8 @@ entity OrderPositions {
     key ID : Integer;
 
     positionNumber : Integer;
+    requester : Association to Users;
+
 
     description : String;
     quantity : Decimal(15,3);

@@ -198,4 +198,44 @@ service ProcurementService {
     ]
     entity Users as projection on db.Users;
 
+
+    @restrict: [
+    {
+        grant: 'READ',
+        to: 'Employee',
+        where: (orderedBy.userId = $user)
+    },
+    {
+        grant: ['READ', 'CREATE', 'DELETE'],
+        to: 'Accounting'
+    },
+    {
+        grant: 'READ',
+        to: ['TeamLead', 'DepartmentManager', 'Director', 'Executive']
+    }
+]
+    entity Invoices as projection on db.Invoices;
+
+
+    @restrict: [
+    {
+        grant: 'READ',
+        to: 'Employee',
+        where: (order.requester.userId = $user)
+    },
+    {
+        grant: ['READ', 'CREATE', 'UPDATE'],
+        to: 'Procurement'
+    },
+    {
+        grant: 'READ',
+        to: ['TeamLead', 'DepartmentManager', 'Director', 'Executive']
+    }
+]
+    entity OrderPositions  as projection on db.OrderPositions;
+
+
+
+    
+
 }

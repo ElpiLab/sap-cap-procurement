@@ -1,0 +1,4 @@
+ID,positionNumber,description,quantity,unit,estimatedUnitPrice,estimatedTotalPrice,tender_ID
+1,10,Industrial Salt 25kg Bags,5000,EA,12.50,62500.00,1
+2,20,Industrial Salt Bulk,100,TON,180.00,18000.00,1
+3,30,Transport and Delivery Services,50,TRIP,450.00,22500.00,1
