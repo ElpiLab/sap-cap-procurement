@@ -128,6 +128,12 @@ service ProcurementService {
     }
 ]
     entity OrderRequests as projection on db.OrderRequests;
+        actions {
+            action submit();
+            action approve();
+            action reject();
+            action cancel();
+        }
 
 
     // ============================================================

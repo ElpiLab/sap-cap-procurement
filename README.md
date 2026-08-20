@@ -2,6 +2,8 @@
 
 Documentation Sources:
 
+- https://cap.cloud.sap/docs/guides/services/custom-actions
+
 -  Initialization: https://cap.cloud.sap/docs/get-started/
 - Service: service CatalogService {
   entity Books {
@@ -25,3 +27,11 @@ service CatalogService {
     action addRating (stars: Integer);
   }
 }
+
+
+### Learning:
+- @requires: Who can do CRUD? Create, Read, Update, Delete
+- actions: What operations exist? (approve, request....)
+- 
+
+
