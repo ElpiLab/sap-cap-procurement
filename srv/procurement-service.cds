@@ -128,10 +128,13 @@ service ProcurementService {
     }
 ]
     entity OrderRequests as projection on db.OrderRequests actions {
-            action submit();
-            action approve();
-            action reject();
-            action cancel();
+        action submitOrderRequest();
+
+        action approveOrderRequest();
+
+        action rejectOrderRequest();
+
+        action cancelOrderRequest();
         }
 
 
@@ -154,7 +157,15 @@ service ProcurementService {
         to: ['TeamLead', 'DepartmentManager', 'Director', 'Executive']
     }
 ]
-    entity Orders as projection on db.Orders;
+    entity Orders as projection on db.Orders actions {
+        action changeQuantity(quantity: Integer);
+
+        action changeSupplier(supplier_ID: UUID);
+
+        action sendToSupplier();
+
+        action cancel();
+    }
 
 
     // ============================================================

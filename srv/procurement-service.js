@@ -2,16 +2,21 @@ import cds from '@sap/cds'
 
 export default cds.service.impl(function () {
 
-    // =========================
-    // SUBMIT
-    // =========================
+    // =========================================================
+    // ORDER REQUESTS
+    // =========================================================
+
+    // ---------------------------------------------------------
+    // SUBMIT ORDER REQUEST
+    // PENDING -> SUBMITTED
+    // ---------------------------------------------------------
 
     this.on('submitOrderRequest', async req => {
 
         const { orderRequest_ID } = req.data
 
         const orderRequest = await SELECT.one
-            .from(OrderRequests)
+            .from('ProcurementService.OrderRequests')
             .where({ ID: orderRequest_ID })
 
         if (!orderRequest) {
@@ -28,24 +33,29 @@ export default cds.service.impl(function () {
             )
         }
 
-        await UPDATE(OrderRequests)
+        await UPDATE('ProcurementService.OrderRequests')
             .set({ status: 'SUBMITTED' })
             .where({ ID: orderRequest_ID })
 
-        return orderRequest
+        return {
+            ...orderRequest,
+            status: 'SUBMITTED'
+        }
     })
 
 
-    // =========================
-    // APPROVE
-    // =========================
+    // ---------------------------------------------------------
+    // APPROVE ORDER REQUEST
+    // SUBMITTED -> APPROVED
+    // AND CREATE ORDER
+    // ---------------------------------------------------------
 
     this.on('approveOrderRequest', async req => {
 
         const { orderRequest_ID } = req.data
 
         const orderRequest = await SELECT.one
-            .from(OrderRequests)
+            .from('ProcurementService.OrderRequests')
             .where({ ID: orderRequest_ID })
 
         if (!orderRequest) {
@@ -62,12 +72,14 @@ export default cds.service.impl(function () {
             )
         }
 
-        await UPDATE(OrderRequests)
+        // Change OrderRequest status
+        await UPDATE('ProcurementService.OrderRequests')
             .set({ status: 'APPROVED' })
             .where({ ID: orderRequest_ID })
 
+        // Create Order from OrderRequest
         const order = await INSERT
-            .into(Orders)
+            .into('ProcurementService.Orders')
             .entries({
                 orderRequest_ID: orderRequest.ID,
                 product: orderRequest.product,
@@ -79,16 +91,17 @@ export default cds.service.impl(function () {
     })
 
 
-    // =========================
-    // REJECT
-    // =========================
+    // ---------------------------------------------------------
+    // REJECT ORDER REQUEST
+    // SUBMITTED -> REJECTED
+    // ---------------------------------------------------------
 
     this.on('rejectOrderRequest', async req => {
 
         const { orderRequest_ID } = req.data
 
         const orderRequest = await SELECT.one
-            .from(OrderRequests)
+            .from('ProcurementService.OrderRequests')
             .where({ ID: orderRequest_ID })
 
         if (!orderRequest) {
@@ -105,24 +118,28 @@ export default cds.service.impl(function () {
             )
         }
 
-        await UPDATE(OrderRequests)
+        await UPDATE('ProcurementService.OrderRequests')
             .set({ status: 'REJECTED' })
             .where({ ID: orderRequest_ID })
 
-        return orderRequest
+        return {
+            ...orderRequest,
+            status: 'REJECTED'
+        }
     })
 
 
-    // =========================
-    // CANCEL
-    // =========================
+    // ---------------------------------------------------------
+    // CANCEL ORDER REQUEST
+    // PENDING -> CANCELLED
+    // ---------------------------------------------------------
 
     this.on('cancelOrderRequest', async req => {
 
         const { orderRequest_ID } = req.data
 
         const orderRequest = await SELECT.one
-            .from(OrderRequests)
+            .from('ProcurementService.OrderRequests')
             .where({ ID: orderRequest_ID })
 
         if (!orderRequest) {
@@ -139,43 +156,183 @@ export default cds.service.impl(function () {
             )
         }
 
-        await UPDATE(OrderRequests)
+        await UPDATE('ProcurementService.OrderRequests')
             .set({ status: 'CANCELLED' })
             .where({ ID: orderRequest_ID })
 
-        return orderRequest
+        return {
+            ...orderRequest,
+            status: 'CANCELLED'
+        }
     })
 
-});
-// CANCEL Actions Orders Entity
-    // =========================
 
-    this.on('cancelOrder', async req => {
+    // =========================================================
+    // ORDERS
+    // =========================================================
 
-        const { order_ID } = req.data
+
+    // ---------------------------------------------------------
+    // CHANGE QUANTITY
+    // ---------------------------------------------------------
+
+    this.on('changeQuantity', 'Orders', async req => {
+
+        const { quantity } = req.data
+        const { ID } = req.params[0]
 
         const order = await SELECT.one
-            .from(Orders)
-            .where({ ID: order_ID })
+            .from('ProcurementService.Orders')
+            .where({ ID })
 
         if (!order) {
             return req.reject(
                 404,
-                'There is no Order {id} available'
+                'Order does not exist'
             )
         }
 
-        if (order.status !== 'Created') {
+        if (order.status !== 'CREATED') {
             return req.reject(
                 400,
-                'Only CREATED Orders can be cancelled'
+                'Only CREATED Orders can be modified'
             )
         }
 
-        await UPDATE(Orders)
-            .set({ status: 'CANCELLED' })
-            .where({ ID: order_ID })
+        if (quantity <= 0) {
+            return req.reject(
+                400,
+                'Quantity must be greater than zero'
+            )
+        }
 
-        return order // here order nad not Order
-        //order her eis the variable initailazed before
+        await UPDATE('ProcurementService.Orders')
+            .set({ quantity })
+            .where({ ID })
+
+        return {
+            ...order,
+            quantity
+        }
+    })
+
+
+    // ---------------------------------------------------------
+    // CHANGE SUPPLIER
+    // ---------------------------------------------------------
+
+    this.on('changeSupplier', 'Orders', async req => {
+
+        const { supplier_ID } = req.data
+        const { ID } = req.params[0]
+
+        const order = await SELECT.one
+            .from('ProcurementService.Orders')
+            .where({ ID })
+
+        if (!order) {
+            return req.reject(
+                404,
+                'Order does not exist'
+            )
+        }
+
+        if (order.status !== 'CREATED') {
+            return req.reject(
+                400,
+                'Only CREATED Orders can change supplier'
+            )
+        }
+
+        await UPDATE('ProcurementService.Orders')
+            .set({ supplier_ID })
+            .where({ ID })
+
+        return {
+            ...order,
+            supplier_ID
+        }
+    })
+
+
+    // ---------------------------------------------------------
+    // SEND ORDER TO SUPPLIER
+    // CREATED -> SENT_TO_SUPPLIER
+    // ---------------------------------------------------------
+
+    this.on('sendToSupplier', 'Orders', async req => {
+
+        const { ID } = req.params[0]
+
+        const order = await SELECT.one
+            .from('ProcurementService.Orders')
+            .where({ ID })
+
+        if (!order) {
+            return req.reject(
+                404,
+                'Order does not exist'
+            )
+        }
+
+        if (order.status !== 'CREATED') {
+            return req.reject(
+                400,
+                'Only CREATED Orders can be sent to Supplier'
+            )
+        }
+
+        // Later:
+        // 1. Call supplier API
+        // 2. Send email
+        // 3. Send Purchase Order document
+
+        await UPDATE('ProcurementService.Orders')
+            .set({ status: 'SENT_TO_SUPPLIER' })
+            .where({ ID })
+
+        return {
+            ...order,
+            status: 'SENT_TO_SUPPLIER'
+        }
+    })
+
+
+    // ---------------------------------------------------------
+    // CANCEL ORDER
+    // CREATED -> CANCELLED
+    // ---------------------------------------------------------
+
+    this.on('cancel', 'Orders', async req => {
+
+        const { ID } = req.params[0]
+
+        const order = await SELECT.one
+            .from('ProcurementService.Orders')
+            .where({ ID })
+
+        if (!order) {
+            return req.reject(
+                404,
+                'Order does not exist'
+            )
+        }
+
+        if (order.status === 'CANCELLED') {
+            return req.reject(
+                400,
+                'Order is already cancelled'
+            )
+        }
+
+        await UPDATE('ProcurementService.Orders')
+            .set({ status: 'CANCELLED' })
+            .where({ ID })
+
+        return {
+            ...order,
+            status: 'CANCELLED'
+        }
+    })
+
 });
