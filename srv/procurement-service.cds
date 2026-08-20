@@ -119,7 +119,7 @@ service ProcurementService {
         where: (requester.userId = $user)
     },
     {
-        grant: ['READ', 'CREATE', 'UPDATE', 'DELETE'],
+        grant: ['READ', 'CREATE', 'UPDATE'],
         to: 'Procurement'
     },
     {
@@ -127,8 +127,7 @@ service ProcurementService {
         to: ['TeamLead', 'DepartmentManager', 'Director', 'Executive']
     }
 ]
-    entity OrderRequests as projection on db.OrderRequests;
-        actions {
+    entity OrderRequests as projection on db.OrderRequests actions {
             action submit();
             action approve();
             action reject();

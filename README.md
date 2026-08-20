@@ -30,8 +30,33 @@ service CatalogService {
 
 
 ### Learning:
-- @requires: Who can do CRUD? Create, Read, Update, Delete
+- @requires: Who can do it CRUD? Create, Read, Update, Delete
 - actions: What operations exist? (approve, request....)
-- 
+- Example:
+    // ORDER REQUESTS
+
+    @restrict: [
+    {
+        grant: ['READ', 'CREATE', 'UPDATE'],
+        to: 'Employee',
+        where: (requester.userId = $user)
+    },
+    {
+        grant: ['READ', 'CREATE', 'UPDATE', 'DELETE'],
+        to: 'Procurement'
+    },
+    {
+        grant: 'READ',
+        to: ['TeamLead', 'DepartmentManager', 'Director', 'Executive']
+    }
+]
+    entity OrderRequests as projection on db.OrderRequests actions {
+            action submit();
+            action approve();
+            action reject();
+            action cancel();
+        }
+
+
 
 

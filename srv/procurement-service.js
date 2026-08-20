@@ -1,143 +1,181 @@
-const cds = require('@sap/cds') // this is the CAP Node.js API to access CAP Node.js API
+import cds from '@sap/cds'
 
-module.exports = cds.service.impl(function () { //: exports and custom implementation for this service to attach
+export default cds.service.impl(function () {
 
-  this.on('approveOrderRequest', async req => {//handler
-    // This approveOrderRequest function is executed when somenone called the fucntion
+    // =========================
+    // SUBMIT
+    // =========================
 
-    const { ID } = req.data
+    this.on('submitOrderRequest', async req => {
 
-    // 1. Find the OrderRequest
-    const orderRequest = await SELECT.one //Select one OrderRequest from 
-    //ProcurementService.OrderRequests where ID equals this ID
-      .from('ProcurementService.OrderRequests')
-      .where({ ID })
+        const { orderRequest_ID } = req.data
 
-    // 2. Request must exist
-    if (!orderRequest) { // if didnt find it
-      return req.reject(404, 'OrderRequest does not exist')
-    }
+        const orderRequest = await SELECT.one
+            .from(OrderRequests)
+            .where({ ID: orderRequest_ID })
 
-    // 3. Request must have SUBMITTED status
-    if (orderRequest.status !== 'SUBMITTED') {
-      return req.reject(
-        400,
-        'OrderRequest must have status SUBMITTED'
-      )
-    }
+        if (!orderRequest) {
+            return req.reject(
+                404,
+                'OrderRequest does not exist'
+            )
+        }
 
-    // 4. Change request status to APPROVED
-    await UPDATE('ProcurementService.OrderRequests')
-      .set({ status: 'APPROVED' })
-      .where({ ID })
+        if (orderRequest.status !== 'PENDING') {
+            return req.reject(
+                400,
+                'Only PENDING OrderRequests can be submitted'
+            )
+        }
 
-    // 5. Create an Order from the request 
-    const order = await INSERT.into('ProcurementService.Orders') //Insert a new record into Orders.
-      .entries({
-        orderRequest_ID: orderRequest.ID,
-        product: orderRequest.product,
-        quantity: orderRequest.quantity,
-        status: 'CREATED'
-      })
+        await UPDATE(OrderRequests)
+            .set({ status: 'SUBMITTED' })
+            .where({ ID: orderRequest_ID })
 
-    // 6. Return the newly created Order
-    return order
-  })
+        return orderRequest
+    })
+
+
+    // =========================
+    // APPROVE
+    // =========================
+
+    this.on('approveOrderRequest', async req => {
+
+        const { orderRequest_ID } = req.data
+
+        const orderRequest = await SELECT.one
+            .from(OrderRequests)
+            .where({ ID: orderRequest_ID })
+
+        if (!orderRequest) {
+            return req.reject(
+                404,
+                'OrderRequest does not exist'
+            )
+        }
+
+        if (orderRequest.status !== 'SUBMITTED') {
+            return req.reject(
+                400,
+                'Only SUBMITTED OrderRequests can be approved'
+            )
+        }
+
+        await UPDATE(OrderRequests)
+            .set({ status: 'APPROVED' })
+            .where({ ID: orderRequest_ID })
+
+        const order = await INSERT
+            .into(Orders)
+            .entries({
+                orderRequest_ID: orderRequest.ID,
+                product: orderRequest.product,
+                quantity: orderRequest.quantity,
+                status: 'CREATED'
+            })
+
+        return order
+    })
+
+
+    // =========================
+    // REJECT
+    // =========================
+
+    this.on('rejectOrderRequest', async req => {
+
+        const { orderRequest_ID } = req.data
+
+        const orderRequest = await SELECT.one
+            .from(OrderRequests)
+            .where({ ID: orderRequest_ID })
+
+        if (!orderRequest) {
+            return req.reject(
+                404,
+                'OrderRequest does not exist'
+            )
+        }
+
+        if (orderRequest.status !== 'SUBMITTED') {
+            return req.reject(
+                400,
+                'Only SUBMITTED OrderRequests can be rejected'
+            )
+        }
+
+        await UPDATE(OrderRequests)
+            .set({ status: 'REJECTED' })
+            .where({ ID: orderRequest_ID })
+
+        return orderRequest
+    })
+
+
+    // =========================
+    // CANCEL
+    // =========================
+
+    this.on('cancelOrderRequest', async req => {
+
+        const { orderRequest_ID } = req.data
+
+        const orderRequest = await SELECT.one
+            .from(OrderRequests)
+            .where({ ID: orderRequest_ID })
+
+        if (!orderRequest) {
+            return req.reject(
+                404,
+                'OrderRequest does not exist'
+            )
+        }
+
+        if (orderRequest.status !== 'PENDING') {
+            return req.reject(
+                400,
+                'Only PENDING OrderRequests can be cancelled'
+            )
+        }
+
+        await UPDATE(OrderRequests)
+            .set({ status: 'CANCELLED' })
+            .where({ ID: orderRequest_ID })
+
+        return orderRequest
+    })
 
 });
-//Submit Request OrderRequest
-this.on('submitOrderRequest', async req => {
+// CANCEL Actions Orders Entity
+    // =========================
 
-    // 1. Get the ID from the incoming request
-    const { orderRequest_ID } = req.data
+    this.on('cancelOrder', async req => {
 
-    // 2. Find the existing OrderRequest in the database
-    const orderRequest = await SELECT.one
-        .from(OrderRequests)
-        .where({ ID: orderRequest_ID })
- 
-    // 3. Make sure the OrderRequest exists
-    if (!orderRequest) {
-        return req.reject(404, 'OrderRequest does not exist')
-    }
+        const { order_ID } = req.data
 
-    // 4. Make sure the current status is PENDING
-    if (orderRequest.status !== 'PENDING') {
-        return req.reject(
-            400,
-            'Only PENDING OrderRequests can be submitted'
-        )
-    }
+        const order = await SELECT.one
+            .from(Orders)
+            .where({ ID: order_ID })
 
-    // 5. Change the status from PENDING to SUBMITTED
-    await UPDATE(OrderRequests)
-        .set({ status: 'SUBMITTED' })
-        .where({ ID: orderRequest_ID })
+        if (!order) {
+            return req.reject(
+                404,
+                'There is no Order {id} available'
+            )
+        }
 
-    // 6. Return the OrderRequest
-    return orderRequest
-});
-//Reject Request OrderRequest
-this.on('rejectOrderRequest', async req => {
+        if (order.status !== 'Created') {
+            return req.reject(
+                400,
+                'Only CREATED Orders can be cancelled'
+            )
+        }
 
-    // 1. Get the ID from the incoming request
-    const { orderRequest_ID } = req.data
+        await UPDATE(Orders)
+            .set({ status: 'CANCELLED' })
+            .where({ ID: order_ID })
 
-    // 2. Find the existing OrderRequest in the database
-    const orderRequest = await SELECT.one
-        .from(OrderRequests)
-        .where({ ID: orderRequest_ID })
- 
-    // 3. Make sure the OrderRequest exists
-    if (!orderRequest) {
-        return req.reject(404, 'OrderRequest does not exist')
-    }
-
-    // 4. Make sure the current status is PENDING
-    if (orderRequest.status !== 'SUBMITTED') {
-        return req.reject(
-            400,
-            'Only PENDING OrderRequests can be accepted/rejected'
-        )
-    }
-
-    // 5. Change the status from PENDING to REJECTED
-    await UPDATE(OrderRequests)
-        .set({ status: 'REJECTED' })
-        .where({ ID: orderRequest_ID })
-
-    // 6. Return the OrderRequest
-    return orderRequest
-});
-//Cancel Request OrderRequest
-this.on('cancelOrderRequest', async req => {
-
-    // 1. Get the ID from the incoming request
-    const { orderRequest_ID } = req.data
-
-    // 2. Find the existing OrderRequest in the database
-    const orderRequest = await SELECT.one
-        .from(OrderRequests)
-        .where({ ID: orderRequest_ID })
- 
-    // 3. Make sure the OrderRequest exists
-    if (!orderRequest) {
-        return req.reject(404, 'OrderRequest does not exist')
-    }
-
-    // 4. Make sure the current status is PENDING
-    if (orderRequest.status !== 'PENDING') {
-        return req.reject(
-            400,
-            'Only submitted  OrderRequests can be accepted/rejected/rejected'
-        )
-    }
-
-    // 5. Change the status from PENDING to REJECTED
-    await UPDATE(OrderRequests)
-        .set({ status: 'Cancelled' })
-        .where({ ID: orderRequest_ID })
-
-    // 6. Return the OrderRequest
-    return orderRequest
+        return order // here order nad not Order
+        //order her eis the variable initailazed before
 });
