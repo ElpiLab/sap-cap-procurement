@@ -19,7 +19,10 @@ service ProcurementService {
             to: 'Procurement'
         }
     ]
-    entity Approvals as projection on db.Approvals;
+    entity Approvals as projection on db.Approvals actions {
+        action approveApproval();
+        action rejectApproval();
+    };
 
 
     // ============================================================
@@ -54,7 +57,11 @@ service ProcurementService {
             where: (isValid = true)
         }
     ]
-    entity Contracts as projection on db.Contracts;
+    entity Contracts as projection on db.Contracts actions {
+        action activateContract();
+        action deactivateContract();
+        action renewContract();
+    };
 
 
     // ============================================================
@@ -98,14 +105,24 @@ service ProcurementService {
     @restrict: [
         {
             grant: 'READ',
-            to: ['Employee', 'TeamLead', 'DepartmentManager', 'Director', 'Executive', 'Procurement']
+            to: [
+                'Employee',
+                'TeamLead',
+                'DepartmentManager',
+                'Director',
+                'Executive',
+                'Procurement'
+            ]
         },
         {
             grant: ['CREATE', 'UPDATE'],
             to: 'Procurement'
         }
     ]
-    entity Documents as projection on db.Documents;
+    entity Documents as projection on db.Documents actions {
+        action archiveDocument();
+        action restoreDocument();
+    };
 
 
     // ============================================================
@@ -113,59 +130,63 @@ service ProcurementService {
     // ============================================================
 
     @restrict: [
-    {
-        grant: ['READ', 'CREATE', 'UPDATE'],
-        to: 'Employee',
-        where: (requester.userId = $user)
-    },
-    {
-        grant: ['READ', 'CREATE', 'UPDATE'],
-        to: 'Procurement'
-    },
-    {
-        grant: 'READ',
-        to: ['TeamLead', 'DepartmentManager', 'Director', 'Executive']
-    }
-]
+        {
+            grant: ['READ', 'CREATE', 'UPDATE'],
+            to: 'Employee',
+            where: (requester.userId = $user)
+        },
+        {
+            grant: ['READ', 'CREATE', 'UPDATE'],
+            to: 'Procurement'
+        },
+        {
+            grant: 'READ',
+            to: [
+                'TeamLead',
+                'DepartmentManager',
+                'Director',
+                'Executive'
+            ]
+        }
+    ]
     entity OrderRequests as projection on db.OrderRequests actions {
         action submitOrderRequest();
-
         action approveOrderRequest();
-
         action rejectOrderRequest();
-
         action cancelOrderRequest();
-        }
+    };
 
 
     // ============================================================
     // ORDERS
     // ============================================================
 
-   @restrict: [
-    {
-        grant: 'READ',
-        to: 'Employee',
-        where: (requester.userId = $user)
-    },
-    {
-        grant: ['READ', 'CREATE', 'UPDATE'],
-        to: 'Procurement'
-    },
-    {
-        grant: 'READ',
-        to: ['TeamLead', 'DepartmentManager', 'Director', 'Executive']
-    }
-]
+    @restrict: [
+        {
+            grant: 'READ',
+            to: 'Employee',
+            where: (requester.userId = $user)
+        },
+        {
+            grant: ['READ', 'CREATE', 'UPDATE'],
+            to: 'Procurement'
+        },
+        {
+            grant: 'READ',
+            to: [
+                'TeamLead',
+                'DepartmentManager',
+                'Director',
+                'Executive'
+            ]
+        }
+    ]
     entity Orders as projection on db.Orders actions {
         action changeQuantity(quantity: Integer);
-
         action changeSupplier(supplier_ID: UUID);
-
         action sendToSupplier();
-
         action cancel();
-    }
+    };
 
 
     // ============================================================
@@ -178,7 +199,10 @@ service ProcurementService {
             to: ['FinanceTeam', 'Director', 'Executive']
         }
     ]
-    entity Payments as projection on db.Payments;
+    entity Payments as projection on db.Payments actions {
+        action processPayment();
+        action cancelPayment();
+    };
 
 
     // ============================================================
@@ -188,14 +212,24 @@ service ProcurementService {
     @restrict: [
         {
             grant: 'READ',
-            to: ['Employee', 'TeamLead', 'DepartmentManager', 'Director', 'Executive']
+            to: [
+                'Employee',
+                'TeamLead',
+                'DepartmentManager',
+                'Director',
+                'Executive'
+            ]
         },
         {
             grant: ['READ', 'CREATE', 'UPDATE'],
             to: 'Procurement'
         }
     ]
-    entity Suppliers as projection on db.Suppliers;
+    entity Suppliers as projection on db.Suppliers actions {
+        action activateSupplier();
+        action deactivateSupplier();
+        action blockSupplier();
+    };
 
 
     // ============================================================
@@ -205,7 +239,12 @@ service ProcurementService {
     @restrict: [
         {
             grant: 'READ',
-            to: ['TeamLead', 'DepartmentManager', 'Director', 'Executive']
+            to: [
+                'TeamLead',
+                'DepartmentManager',
+                'Director',
+                'Executive'
+            ]
         },
         {
             grant: ['CREATE', 'UPDATE', 'DELETE'],
@@ -215,43 +254,61 @@ service ProcurementService {
     entity Users as projection on db.Users;
 
 
-    @restrict: [
-    {
-        grant: 'READ',
-        to: 'Employee',
-        where: (orderedBy.userId = $user)
-    },
-    {
-        grant: ['READ', 'CREATE', 'DELETE'],
-        to: 'Accounting'
-    },
-    {
-        grant: 'READ',
-        to: ['TeamLead', 'DepartmentManager', 'Director', 'Executive']
-    }
-]
-    entity Invoices as projection on db.Invoices;
-
+    // ============================================================
+    // INVOICES
+    // ============================================================
 
     @restrict: [
-    {
-        grant: 'READ',
-        to: 'Employee',
-        where: (order.requester.userId = $user)
-    },
-    {
-        grant: ['READ', 'CREATE', 'UPDATE'],
-        to: 'Procurement'
-    },
-    {
-        grant: 'READ',
-        to: ['TeamLead', 'DepartmentManager', 'Director', 'Executive']
-    }
-]
-    entity OrderPositions  as projection on db.OrderPositions;
+        {
+            grant: 'READ',
+            to: 'Employee',
+            where: (orderedBy.userId = $user)
+        },
+        {
+            grant: ['READ', 'CREATE', 'DELETE'],
+            to: 'Accounting'
+        },
+        {
+            grant: 'READ',
+            to: [
+                'TeamLead',
+                'DepartmentManager',
+                'Director',
+                'Executive'
+            ]
+        }
+    ]
+    entity Invoices as projection on db.Invoices actions {
+        action markAsPaid();
+        action cancelInvoice();
+        action disputeInvoice();
+    };
 
 
+    // ============================================================
+    // ORDER POSITIONS
+    // ============================================================
 
-    
+    @restrict: [
+        {
+            grant: 'READ',
+            to: 'Employee',
+            where: (order.requester.userId = $user)
+        },
+        {
+            grant: ['READ', 'CREATE', 'UPDATE'],
+            to: 'Procurement'
+        },
+        {
+            grant: 'READ',
+            to: [
+                'TeamLead',
+                'DepartmentManager',
+                'Director',
+                'Executive'
+            ]
+        }
+    ]
+    entity OrderPositions as projection on db.OrderPositions;
 
 }
